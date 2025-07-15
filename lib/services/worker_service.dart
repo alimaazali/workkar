@@ -21,23 +21,18 @@ class WorkerService {
     try {
       final client = await _supabaseService.client;
 
-      var query = client
-          .from('workers')
-          .select('''
+      var query = client.from('workers').select('''
             id, user_id, service_category, pincode, latitude, longitude,
             availability, bio, hourly_rate, experience_years, profile_image_url,
             created_at, updated_at,
             user_profiles!workers_user_id_fkey(full_name, phone)
-          ''')
-          .eq('service_category', category)
-          .eq('availability', 'available')
-          .limit(limit);
+          ''').eq('service_category', category).eq('availability', 'available');
 
       if (pincode != null && pincode.isNotEmpty) {
         query = query.eq('pincode', pincode);
       }
 
-      final response = await query;
+      final response = await query.limit(limit);
 
       List<Worker> workers =
           response.map<Worker>((json) => Worker.fromJson(json)).toList();

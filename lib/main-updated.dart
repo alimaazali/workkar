@@ -274,6 +274,17 @@ class _TrackingWidgetState extends State<TrackingWidget> {
 
   void trackInteraction(String eventType, PointerEvent? event) {
     try {
+    //remove focus from the flutter app when mouseleave
+    //added this to fix the issue of the focus not being removed when the mouse leaves the flutter app
+    if (eventType == 'mouseleave') {
+        Future.delayed(Duration(milliseconds: 300), () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus &&
+              currentFocus.focusedChild != null) {
+            currentFocus.unfocus();
+          }
+        });
+      }
       RenderBox? renderBox;
       if (_selectedRenderObject is RenderBox) {
         renderBox = _selectedRenderObject as RenderBox;
@@ -478,7 +489,7 @@ class _TrackingWidgetState extends State<TrackingWidget> {
           onPanStart: (_) => trackInteraction('touchstart', null),
           onPanUpdate: (_) => trackInteraction('touchmove', null),
           onPanEnd: (_) => trackInteraction('touchend', null),
-          child: Focus(
+          child: FocusScope(
             onKeyEvent: (_, event) {
               if(event is KeyDownEvent){
                 trackInteraction('keydown', null);

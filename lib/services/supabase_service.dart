@@ -13,10 +13,13 @@ class SupabaseService {
 
   SupabaseService._internal() : _initFuture = _initializeSupabase();
 
-  static const String supabaseUrl =
-      String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  static const String supabaseAnonKey =
-      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  // Use the provided project URL or fallback to environment variables
+  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL',
+      defaultValue: 'https://nipkmkabmaxruapfwerv.supabase.com');
+  static const String supabaseAnonKey = String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
+      defaultValue:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pcGtta2FibWF4cnVhcGZ3ZXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzNjQ4MDAsImV4cCI6MjA0OTk0MDgwMH0.7rCHcIm2ZpXZxjzAoNqYdnhPvQDjXkAGPTEIJBYLVGE');
 
   // Internal initialization logic
   static Future<void> _initializeSupabase() async {
@@ -49,5 +52,22 @@ class SupabaseService {
           'SupabaseService not initialized. Call client getter first.');
     }
     return _client;
+  }
+
+  // Get current project URL
+  static String get currentProjectUrl => supabaseUrl;
+
+  // Get current anon key
+  static String get currentAnonKey => supabaseAnonKey;
+
+  // Health check method
+  Future<bool> isConnected() async {
+    try {
+      final client = await this.client;
+      await client.from('user_profiles').select('count').count();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
